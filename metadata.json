@@ -1,0 +1,6 @@
+{
+  "name": "BeatGem",
+  "description": "Structural, beat-synced desktop video editor and Rust engine workspace for making music videos whose cuts land on the music.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,19 @@
+# GitHub Linguist Configuration for BeatGem (Rust + WGSL Desktop Application)
+# Explicitly mark Rust crates, integration tests, and WGSL shaders as primary repository source code
+*.rs linguist-detectable=true linguist-vendored=false
+*.wgsl linguist-detectable=true linguist-vendored=false
+*.toml linguist-detectable=true linguist-vendored=false
+crates/** linguist-vendored=false
+tests/** linguist-vendored=false
+scripts/** linguist-vendored=false
+
+# Mark the AI Studio interactive web preview harness as vendored so GitHub reports 100% Rust & WGSL
+src/** linguist-vendored=true
+public/** linguist-vendored=true
+index.html linguist-vendored=true
+vite.config.ts linguist-vendored=true
+tsconfig.json linguist-vendored=true
+package.json linguist-vendored=true
+package-lock.json linguist-vendored=true
+metadata.json linguist-vendored=true
+.env.example linguist-vendored=true

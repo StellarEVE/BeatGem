@@ -1,0 +1,12 @@
+[package]
+name = "beatgem-audio"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+beatgem-core.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+symphonia.workspace = true
+rustfft.workspace = true

@@ -1,0 +1,11 @@
+[package]
+name = "beatgem-platform"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+beatgem-core.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+blake3.workspace = true

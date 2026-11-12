@@ -1,0 +1,14 @@
+[package]
+name = "beatgem-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+beatgem-core.workspace = true
+beatgem-audio.workspace = true
+beatgem-media.workspace = true
+beatgem-platform.workspace = true
+beatgem-render.workspace = true
+serde.workspace = true
+crossbeam-channel.workspace = true

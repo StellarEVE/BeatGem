@@ -1335,7 +1335,7 @@ export function createInitialProjectState(): ProjectState {
       {
         timestamp: '07:40:00.002',
         phase: 'BOOT',
-        message: 'BeatGem v0.4.0-foundation starting. Panic-safe file logger attached beside executable.',
+        message: 'BeatGem v0.1.0 starting. Panic-safe file logger attached beside executable.',
       },
       {
         timestamp: '07:40:00.018',

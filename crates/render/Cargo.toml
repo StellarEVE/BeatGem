@@ -9,6 +9,4 @@ beatgem-core.workspace = true
 beatgem-platform.workspace = true
 serde.workspace = true
 blake3.workspace = true
-wgpu.workspace = true
-bytemuck.workspace = true
 thiserror.workspace = true

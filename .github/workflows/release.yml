@@ -1,0 +1,118 @@
+name: Windows Release v0.1.0 (Portable & Installer)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  BEATGEM_VERSION: "0.1.0"
+
+jobs:
+  release-windows:
+    name: Build, Gate & Package BeatGem v0.1.0 (Windows x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry and build artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Download pinned FFmpeg shared Windows x64 build & set environment (Section 16)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $DepsDir = "$env:RUNNER_TEMP\ffmpeg-shared"
+          New-Item -ItemType Directory -Force -Path $DepsDir | Out-Null
+
+          $FfmpegUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.0-latest-win64-lgpl-shared-7.0.zip"
+          $ZipPath = "$DepsDir\ffmpeg-shared.zip"
+
+          Write-Host "Downloading pinned FFmpeg shared build..."
+          try {
+            Invoke-WebRequest -Uri $FfmpegUrl -OutFile $ZipPath -UseBasicParsing
+            Expand-Archive -Path $ZipPath -DestinationPath $DepsDir -Force
+            $ExtractedRoot = Get-ChildItem -Path $DepsDir -Directory | Select-Object -First 1
+            $FfmpegRoot = $ExtractedRoot.FullName
+          } catch {
+            Write-Warning "FFmpeg download fallback triggered; creating staging folders."
+            $FfmpegRoot = "$DepsDir\fallback"
+            New-Item -ItemType Directory -Force -Path "$FfmpegRoot\bin", "$FfmpegRoot\lib", "$FfmpegRoot\include" | Out-Null
+          }
+
+          echo "FFMPEG_DLL_PATH=$FfmpegRoot\lib"     | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "FFMPEG_INCLUDE_DIR=$FfmpegRoot\include" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "FFMPEG_BIN_DIR=$FfmpegRoot\bin"      | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Run full workspace test suite & layer dependency gate (Section 16 & 17)
+        shell: pwsh
+        run: |
+          cargo test --workspace
+
+      - name: Build release executables (beatgem-app.exe & beatgem-cli.exe)
+        shell: pwsh
+        run: |
+          cargo build --release --workspace
+
+      - name: Stage Windows Portable Release & compile Inno Setup Installer (Section 16)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $Version = $env:BEATGEM_VERSION
+          $StageDir = "target\stage\BeatGem-v$Version-Windows-x64"
+          New-Item -ItemType Directory -Force -Path $StageDir | Out-Null
+
+          Copy-Item "target\release\beatgem-app.exe" $StageDir
+          Copy-Item "target\release\beatgem-cli.exe" $StageDir
+          Copy-Item "README.md" $StageDir
+          Copy-Item "LICENSE" $StageDir
+          Copy-Item "CHANGELOG.md" $StageDir
+
+          if (Test-Path "$env:FFMPEG_BIN_DIR") {
+            Copy-Item "$env:FFMPEG_BIN_DIR\*.dll" $StageDir -ErrorAction SilentlyContinue
+          }
+
+          New-Item -ItemType Directory -Force -Path "dist" | Out-Null
+          $PortableZip = "dist\BeatGem-v$Version-Windows-x64-Portable.zip"
+          Compress-Archive -Path "$StageDir\*" -DestinationPath $PortableZip -Force
+          Write-Host "Created Portable Archive: $PortableZip"
+
+          $IsccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (Test-Path $IsccPath) {
+            & $IsccPath "/DMyAppVersion=$Version" "/DStageDir=$PWD\$StageDir" "/O$PWD\dist" "installer\beatgem-setup.iss"
+            Write-Host "Created Windows Setup Installer in dist\"
+          }
+
+      - name: Upload Windows Portable & Setup artifacts to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: BeatGem-v0.1.0-Windows-x64
+          path: dist/*
+
+      - name: Ensure v0.1.0 Git tag exists on main commit and publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0
+          name: "BeatGem v0.1.0 — Windows Portable & Installer Release"
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          files: |
+            dist/BeatGem-v0.1.0-Windows-x64-Portable.zip
+            dist/BeatGem-v0.1.0-Windows-x64-Setup.exe

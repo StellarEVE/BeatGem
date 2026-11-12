@@ -1,6 +1,9 @@
 import readmeRaw from '../../README.md?raw';
+import changelogRaw from '../../CHANGELOG.md?raw';
 import cargoTomlRaw from '../../Cargo.toml?raw';
 import gitattributesRaw from '../../.gitattributes?raw';
+import releaseWorkflowRaw from '../../.github/workflows/release.yml?raw';
+import innoSetupRaw from '../../installer/beatgem-setup.iss?raw';
 import coreLibRaw from '../../crates/core/src/lib.rs?raw';
 import audioLibRaw from '../../crates/audio/src/lib.rs?raw';
 import platformLibRaw from '../../crates/platform/src/lib.rs?raw';
@@ -10,7 +13,7 @@ import transitionsWgslRaw from '../../crates/render/shaders/transitions.wgsl?raw
 import engineLibRaw from '../../crates/engine/src/lib.rs?raw';
 import appMainRaw from '../../crates/app/src/main.rs?raw';
 import cliMainRaw from '../../crates/cli/src/main.rs?raw';
-import layerCheckTestRaw from '../../tests/workspace_layer_check.rs?raw';
+import layerCheckTestRaw from '../../crates/engine/tests/workspace_layer_check.rs?raw';
 import windowsReleasePs1Raw from '../../scripts/build-windows-release.ps1?raw';
 import archDocRaw from '../../docs/ARCHITECTURE.md?raw';
 
@@ -42,10 +45,31 @@ function makeFileEntry(
 
 export const BEATGEM_RUST_REPOSITORY: RustRepoFile[] = [
   makeFileEntry(
+    'CHANGELOG.md',
+    'release-v0.1.0',
+    'markdown',
+    'v0.1.0 release notes detailing the Windows Portable (.zip) and Inno Setup Installer (.exe) packages.',
+    changelogRaw
+  ),
+  makeFileEntry(
+    '.github/workflows/release.yml',
+    'ci-release',
+    'toml',
+    'GitHub Actions Windows runner workflow that tests, builds, stages FFmpeg DLLs, and publishes Release v0.1.0.',
+    releaseWorkflowRaw
+  ),
+  makeFileEntry(
+    'installer/beatgem-setup.iss',
+    'installer',
+    'toml',
+    'Inno Setup 6 script compiling BeatGem-v0.1.0-Windows-x64-Setup.exe.',
+    innoSetupRaw
+  ),
+  makeFileEntry(
     'Cargo.toml',
     'workspace-root',
     'toml',
-    'Root Cargo workspace manifest locking the 8 Rust crates and shared dependencies.',
+    'Root Cargo workspace manifest (v0.1.0) locking the 8 Rust crates and shared dependencies.',
     cargoTomlRaw
   ),
   makeFileEntry(
@@ -101,7 +125,7 @@ export const BEATGEM_RUST_REPOSITORY: RustRepoFile[] = [
     'crates/app/src/main.rs',
     'beatgem-app',
     'rust',
-    'Desktop binary with pre-window headless WGPU adapter probe, panic-safe beatgem_startup.log writer, and OpenGL fallback.',
+    'v0.1.0 Windows GUI binary with pre-window renderer probe, panic-safe beatgem_startup.log writer, and 4-page egui/eframe shell.',
     appMainRaw
   ),
   makeFileEntry(
@@ -112,7 +136,7 @@ export const BEATGEM_RUST_REPOSITORY: RustRepoFile[] = [
     cliMainRaw
   ),
   makeFileEntry(
-    'tests/workspace_layer_check.rs',
+    'crates/engine/tests/workspace_layer_check.rs',
     'workspace-tests',
     'rust',
     'Automated architectural boundary test enforcing upward dependency bans, UI toolkit isolation, and codec trait borders.',
@@ -122,7 +146,7 @@ export const BEATGEM_RUST_REPOSITORY: RustRepoFile[] = [
     'scripts/build-windows-release.ps1',
     'scripts',
     'powershell',
-    'Windows release pipeline setting FFMPEG_DLL_PATH, FFMPEG_INCLUDE_DIR, LIBCLANG_PATH, running workspace gate, and packaging.',
+    'Windows v0.1.0 release pipeline setting FFMPEG_DLL_PATH, FFMPEG_INCLUDE_DIR, LIBCLANG_PATH, running workspace gate, and packaging.',
     windowsReleasePs1Raw
   ),
   makeFileEntry(

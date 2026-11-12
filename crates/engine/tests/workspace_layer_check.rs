@@ -1,9 +1,10 @@
 //! Workspace Architecture Layer Enforcement Test (Section 11.3)
 //!
+//! Executed automatically by `cargo test --workspace`.
 //! Verifies that:
 //! 1. Lower crates never import upward (e.g. `core` never depends on `audio`, `media`, `platform`, `render`, `engine`, `app`, or `cli`).
 //! 2. Nothing below `beatgem-app` depends on the interface toolkit (`egui`, `eframe`, `winit`).
-//! 3. Nothing outside `beatgem-platform` names a codec binding (`ffmpeg-next`, `rsmpeg`) or vendor hardware API.
+//! 3. Nothing outside `beatgem-platform` names a codec binding (`ffmpeg-next`, `ffmpeg-sys-next`, `rsmpeg`).
 
 use std::fs;
 use std::path::Path;
@@ -89,6 +90,12 @@ const LAYER_RULES: &[CrateRule] = &[
 
 #[test]
 fn enforce_workspace_dependency_direction_and_borders() {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let workspace_root = manifest_dir
+        .parent()
+        .and_then(|p| p.parent())
+        .expect("Failed to locate workspace root from crates/engine");
+
     let all_workspace_crates = [
         "beatgem-core",
         "beatgem-audio",
@@ -101,7 +108,7 @@ fn enforce_workspace_dependency_direction_and_borders() {
     ];
 
     for rule in LAYER_RULES {
-        let cargo_toml_path = Path::new(rule.crate_dir).join("Cargo.toml");
+        let cargo_toml_path = workspace_root.join(rule.crate_dir).join("Cargo.toml");
         let manifest = fs::read_to_string(&cargo_toml_path)
             .unwrap_or_else(|_| panic!("Missing Cargo.toml at {:?}", cargo_toml_path));
 

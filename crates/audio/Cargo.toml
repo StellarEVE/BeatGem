@@ -8,5 +8,3 @@ license.workspace = true
 beatgem-core.workspace = true
 serde.workspace = true
 thiserror.workspace = true
-symphonia.workspace = true
-rustfft.workspace = true

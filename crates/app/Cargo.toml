@@ -17,5 +17,5 @@ beatgem-render.workspace = true
 beatgem-engine.workspace = true
 egui.workspace = true
 eframe.workspace = true
-wgpu.workspace = true
-pollster.workspace = true
+serde.workspace = true
+serde_json.workspace = true

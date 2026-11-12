@@ -15,7 +15,5 @@ beatgem-media.workspace = true
 beatgem-platform.workspace = true
 beatgem-render.workspace = true
 beatgem-engine.workspace = true
-egui.workspace = true
-eframe.workspace = true
 serde.workspace = true
 serde_json.workspace = true
